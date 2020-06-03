@@ -1,3 +1,5 @@
+package UI
+
 
 
 class Hello {
@@ -8,7 +10,7 @@ class Hello {
 
 object Hello {
   def main(args: Array[String]): Unit = {
-    println("Hello, world")
+    println("UI.Hello, world")
   }
 }
 
