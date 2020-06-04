@@ -1,3 +1,4 @@
+import Logic.{Simulation, SimulationParams}
 import javafx.scene.control.TextField
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
@@ -10,6 +11,26 @@ import scalafx.scene.text.{Font, Text}
 import scalafx.scene.paint.Color._
 
 object ScalaFXSimulation extends JFXApp {
+
+  val simulation = new Simulation(new SimulationParams(10,10, 1, 1))
+
+  for(n <- 1 to 3){
+    println("-----------")
+
+    val (preys, predators) = simulation.nextState()
+
+    predators.foreach{
+      p => println(p)
+    }
+
+    preys.foreach{
+      p =>
+        println(p)
+    }
+    println("-----------")
+  }
+
+
 
   stage = new PrimaryStage {
     title = "Predator-Prey Simulator"

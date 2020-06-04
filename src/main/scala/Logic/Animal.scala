@@ -1,16 +1,14 @@
 package Logic
 
-class Animal(var position: Point) {
+import scala.collection.mutable.ListBuffer
+
+abstract class Animal(var position: Point) {
   private val rand = scala.util.Random
 
 
-  def move(freePositions: Array[Point]): Unit = {
-    position = freePositions(rand.nextInt(freePositions.length))
+  def move(freePositions: ListBuffer[Point]): Unit = {
+    position = freePositions(rand.nextInt(freePositions.size))
   }
 
   override def toString: String = position.toString
-}
-
-object Animal{
-  def apply(position: Point): Animal = new Animal(position)
 }
