@@ -1,5 +1,6 @@
 package UI
 
+import Logic.{Simulation, SimulationParams}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Insets
