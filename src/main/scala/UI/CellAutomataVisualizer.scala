@@ -51,8 +51,8 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
         }
         day += 1
 
-        println(lists._1.size + "  " + lists._2.size)
-
+        println("Ilości w dniu: " + day + " " + lists._1.size + "  " + lists._2.size)
+        /*
         animalData foreach {
           case ("herbivores", herbs) => herbs.add( new XYChart.Data[Number, Number](day, 2))
           case ("carnivores", herbs) => herbs.add( new XYChart.Data[Number, Number](day, 2))
@@ -62,7 +62,7 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
         animalData foreach  {
           (x) => println(x)
         }
-
+        */
         last = t
       }
     }
