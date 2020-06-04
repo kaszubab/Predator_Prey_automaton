@@ -24,7 +24,7 @@ object ScalaFXSimulation extends JFXApp {
     var preyPerc = 10.0
     var predatorPerc = 10.0
 
-    scene = new Scene (1000, 800) {
+    scene = new Scene  {
       val pane = new BorderPane()
 
       pane.padding = Insets(top = 5, bottom = 5, left = 5, right = 5)
@@ -97,6 +97,8 @@ object ScalaFXSimulation extends JFXApp {
         onMouseClicked = (_) => {
           val params = new SimulationParams(mapWidth, mapHeight, preyPerc, predatorPerc)
           root = new CellAutomataVisualizer(params)
+          stage.sizeToScene()
+
         }
       }
 
@@ -104,6 +106,7 @@ object ScalaFXSimulation extends JFXApp {
         onMouseClicked = (_) => {
         }
       }
+
 
       pane.bottom = new VBox(){
         padding =  Insets(5, 5, 5 ,5)
@@ -118,5 +121,6 @@ object ScalaFXSimulation extends JFXApp {
 
       root = pane
     }
+
   }
 }
