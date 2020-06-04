@@ -18,7 +18,21 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
   val canvas = new Canvas(canvasWidth,canvasHeight)
   val gc = canvas.getGraphicsContext2D
   val simulation = new Simulation(params)
+  var day = 0
 
+  val animalData = Seq(("Herbivores",ObservableBuffer(Seq(
+    (0, params.mapHeight * params.mapWidth * params.initialPreyPercentage /100)
+  ) map  {
+    case(x,y) => XYChart.Data[Number, Number](x,y)
+  })),
+    ("Carnivores",ObservableBuffer(Seq(
+      (0, params.mapHeight * params.mapWidth * params.initialPredatorPercentage /100)
+    ) map  {
+      case(x,y) => XYChart.Data[Number, Number](x,y)
+    }))
+  )
+
+  val animalsChart = SimulationLineChart("Total number of animals", animalData)
 
   var last = 0L
   val timer = AnimationTimer( t => {
@@ -28,14 +42,26 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
 
         gc.setFill(Color.White)
         gc.fillRect(0,0, canvasWidth, canvasHeight);
+        lists._1 map {
+          (animal) => addSquare(animal.position, Color.Red)
+        }
 
-        lists._1 foreach(animal => {
-          addSquare(animal.position, Color.Red)
-        })
+        lists._2 map {
+          (animal) => addSquare(animal.position, Color.Blue)
+        }
+        day += 1
 
-        lists._2 foreach(animal => {
-          addSquare(animal.position, Color.Blue)
-        })
+        println(lists._1.size + "  " + lists._2.size)
+
+        animalData foreach {
+          case ("herbivores", herbs) => herbs.add( new XYChart.Data[Number, Number](day, 2))
+          case ("carnivores", herbs) => herbs.add( new XYChart.Data[Number, Number](day, 2))
+          case _ => None
+        }
+
+        animalData foreach  {
+          (x) => println(x)
+        }
 
         last = t
       }
@@ -50,33 +76,15 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
 
 
  def addSquare(position: Point, color: Color) = {
-   println(canvasWidth/params.mapWidth + "   " + canvasHeight/params.mapHeight)
-
    gc.setFill(color)
    gc.fillRect(position.x * canvasWidth / params.mapWidth, position.y * canvasHeight / params.mapHeight,
      canvasWidth/params.mapWidth, canvasHeight/params.mapHeight)
  }
 
   mainWindow.top = canvas
+  mainWindow.right = animalsChart
   children.add(mainWindow)
 
 
 }
-/*
-object LineChart {
-  def apply(ser : Seq[(String, ObservableBuffer[Data[Number, Number]])]): LineChart[Number, Number] = {
-    val xAx = NumberAxis()
-    val yAx = NumberAxis()
-    val chart = new LineChart(xAx, yAx)
 
-    ser foreach {
-      case (name, buff) =>
-        val unit = XYChart.Series[Number, Number](name, buff)
-        chart.getData.add(unit)
-
-    }
-
-    chart
-  }
-}
-*/
