@@ -74,11 +74,11 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
 
 
 
- def addSquare(position: Point, color: Color) = {
-   gc.setFill(color)
-   gc.fillRect(position.x * canvasWidth / params.mapWidth, position.y * canvasHeight / params.mapHeight,
-     canvasWidth/params.mapWidth, canvasHeight/params.mapHeight)
- }
+  def addSquare(position: Point, color: Color) = {
+    gc.setFill(color)
+    gc.fillRect(position.x * canvasWidth / params.mapWidth, position.y * canvasHeight / params.mapHeight,
+      canvasWidth/params.mapWidth, canvasHeight/params.mapHeight)
+  }
 
   def visualizeState(lists:(List[Animal], List[Animal])) {
     gc.setFill(Color.White)
@@ -129,7 +129,7 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
   val saveChartToPng = new Button(){
     text = "Save chart"
     onMouseClicked = (_) => {
-      val img = animalsChart.snapshot(null, new WritableImage(600,300))
+      val img = animalsChart.snapshot(null, null)
       val file = new File(filename + ".png")
       ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", file)
     }
@@ -169,7 +169,6 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
 
 
 }
-
 
 
 

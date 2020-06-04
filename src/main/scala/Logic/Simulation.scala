@@ -8,8 +8,12 @@ import util.control.Breaks._
 class Simulation(val params: SimulationParams) {
   private val worldMap = new mutable.HashMap[Point, Animal]()
   private val rand = scala.util.Random
+  private val lowerLeft = Point(0,0)
+  private val upperRight = Point(params.mapWidth, params.mapHeight)
 
   private def setUpSimulation(): Unit = {
+
+
     val size = params.mapHeight * params.mapWidth
     val preyCount = (size * params.initialPreyPercentage / 100).toInt
     val predatorCount = (size * params.initialPredatorPercentage / 100).toInt
@@ -22,11 +26,13 @@ class Simulation(val params: SimulationParams) {
         if (worldMap.contains(point)) {
           break
         }
+        val animal = Prey(point)
+        worldMap(point) = animal
+        i += 1
+
       }
 
-      val animal = Prey(point)
-      worldMap(point) = animal
-      i += 1
+
     }
 
     i = 0
@@ -37,11 +43,11 @@ class Simulation(val params: SimulationParams) {
         if (worldMap.contains(point)) {
           break
         }
+        val animal = Predator(point)
+        worldMap(point) = animal
+        i += 1
       }
 
-      val animal = Predator(point)
-      worldMap(point) = animal
-      i += 1
     }
 
   }
@@ -55,17 +61,23 @@ class Simulation(val params: SimulationParams) {
           if(i == 0 && j == 0){
             break
           }
-        }
-        val animal = worldMap.getOrElse(position.add(new Point(i, j)), None)
+
+        val pos = position.add(new Point(i, j))
+        val animal = worldMap.getOrElse(pos, None)
 
         animal match {
-          case Prey(pos) => return Some(pos)
-          case other => Unit
+          case Prey(pos) => {
+            return Some(pos)
+          }
+          case other => {
+            Unit
+          }
+
         }
 
       }
     }
-
+    }
     None
   }
 
@@ -95,6 +107,14 @@ class Simulation(val params: SimulationParams) {
     Some(freePosition)
   }
 
+  def inMap(point: Point): Boolean = {
+    if(point.precedes(upperRight) && point.follows(lowerLeft)){
+      true
+      }
+      else {
+      false
+    }
+  }
 
   def findFreePositions(position: Point): Option[ListBuffer[Point]] = {
     val freePositions = new ListBuffer[Point]
@@ -109,7 +129,7 @@ class Simulation(val params: SimulationParams) {
         }
 
         pos = position.add(new Point(i, j))
-        if (!worldMap.contains(pos) ){
+        if (!worldMap.contains(pos) && inMap(pos) ){
           freePositions.append(pos)
         }
       }
@@ -134,7 +154,7 @@ class Simulation(val params: SimulationParams) {
         }
     }
 
-    (preys.toList, predators.toList)
+    (predators.toList, preys.toList)
   }
 
   def nextState(): (List[Animal], List[Animal]) = {
@@ -148,10 +168,10 @@ class Simulation(val params: SimulationParams) {
         animal match {
           case Predator(position) =>
             findNearbyPrey(position) match {
-              case Some(point) =>
+              case Some(point) => {
                 animalsToRemove.append(point)
-                animal.move(ListBuffer(point))
-                animalToAdd.append(Predator(position))
+                animalToAdd.append(Predator(point))
+              }
               case None =>
                 animalsToRemove.append(position)
             }
@@ -173,6 +193,7 @@ class Simulation(val params: SimulationParams) {
                 animalToAdd.append(Prey(point))
               case None => Unit
             }
+          case other => Unit
         }
     }
 
