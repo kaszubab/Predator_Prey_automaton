@@ -1,15 +1,26 @@
 package UI
 
+import java.io.File
+
+import scalafx.application.JFXApp.Stage
 import Logic.{Animal, Point, Simulation, SimulationParams}
 import UI.ScalaFXSimulation.stage
 import javafx.scene.chart.XYChart
+import javax.imageio.ImageIO
 import scalafx.animation.AnimationTimer
+import scalafx.application
+import scalafx.application.JFXApp
+import scalafx.application.JFXApp.PrimaryStage
 import scalafx.collections.ObservableBuffer
+import scalafx.embed.swing.SwingFXUtils
 import scalafx.geometry.Insets
+import scalafx.scene.Scene
 import scalafx.scene.canvas.Canvas
-import scalafx.scene.control.Button
+import scalafx.scene.control.{Button, TextField}
+import scalafx.scene.image.WritableImage
 import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
 import scalafx.scene.paint.Color
+
 
 class CellAutomataVisualizer(params: SimulationParams) extends Pane{
 
@@ -21,6 +32,7 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
   val gc = canvas.getGraphicsContext2D
   val simulation = new Simulation(params)
   var day = 0
+  var filename :String = ""
   var running = false
 
 
@@ -45,7 +57,7 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
   var last = 0L
   val timer = AnimationTimer( t => {
     if (last > 0) {
-      if ((t - last)/ 1e9 > 2) {
+      if ((t - last)/ 1e9 > 0.2) {
         val lists = simulation.nextState()
         visualizeState(lists)
         actualizeCharts(lists)
@@ -107,17 +119,40 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
   }
 
 
+  val filenameBox = new TextField(){
+    promptText = "Enter filename"
+    text.onChange( (_,_, newValue) =>{
+      filename = util.Try(newValue).getOrElse("chart.png")
+    })
+  }
+
   val saveChartToPng = new Button(){
     text = "Save chart"
+    onMouseClicked = (_) => {
+      val img = animalsChart.snapshot(null, new WritableImage(600,300))
+      val file = new File(filename + ".png")
+      ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", file)
+    }
   }
 
   val rightWindow = new VBox() {
     padding = Insets(5,5,5,5)
     spacing = 10
   }
+
+  private val buttonPanel = new HBox() {
+    padding = Insets(5,5,5,5)
+    spacing = 5
+    children.addAll(
+      stopButton,
+      saveChartToPng,
+      filenameBox
+    )
+  }
+
   rightWindow.children.addAll(
     animalsChart,
-    stopButton
+    buttonPanel
   )
 
   val centralPane = new HBox() {

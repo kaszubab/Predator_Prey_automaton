@@ -16,6 +16,7 @@ import scalafx.scene.text.Text
 
 object ScalaFXSimulation extends JFXApp {
 
+
   stage = new PrimaryStage {
     title = "Predator-Prey Simulator"
 
