@@ -8,7 +8,7 @@ import util.control.Breaks._
 class Simulation(val params: SimulationParams) {
   private val worldMap = new mutable.HashMap[Point, Animal]()
   private val rand = scala.util.Random
-  private val lowerLeft = Point(1,1)
+  private val lowerLeft = Point(0,0)
   private val upperRight = Point(params.mapWidth, params.mapHeight)
 
   private def setUpSimulation(): Unit = {
@@ -108,12 +108,12 @@ class Simulation(val params: SimulationParams) {
   }
 
   def inMap(point: Point): Boolean = {
-      if(point.precedes(upperRight) && point.follows(lowerLeft)){
-        true
+    if(point.precedes(upperRight) && point.follows(lowerLeft)){
+      true
       }
       else {
-        false
-      }
+      false
+    }
   }
 
   def findFreePositions(position: Point): Option[ListBuffer[Point]] = {
@@ -154,7 +154,6 @@ class Simulation(val params: SimulationParams) {
         }
     }
 
-    println("count: " + predators.size+ " "+ preys.size)
     (predators.toList, preys.toList)
   }
 
@@ -170,7 +169,6 @@ class Simulation(val params: SimulationParams) {
           case Predator(position) =>
             findNearbyPrey(position) match {
               case Some(point) => {
-                println("found prey at " + point)
                 animalsToRemove.append(point)
                 animalToAdd.append(Predator(point))
               }
@@ -213,7 +211,6 @@ class Simulation(val params: SimulationParams) {
         }
     }
 
-    println("resust lists: "+ result._1.size + " " + result._2.size)
     result
   }
 
