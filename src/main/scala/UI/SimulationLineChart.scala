@@ -7,19 +7,30 @@ import javafx.scene.chart.XYChart.Data
 
 object SimulationLineChart  {
 
-  def apply(title: String, data: Seq[(String, ObservableBuffer[Data[Number, Number]])]): LineChart[Number, Number] = {
+  def apply(title: String, series: Seq[(String, ObservableBuffer[Data[Number, Number]])]): LineChart[Number, Number] = {
     val xAxis = NumberAxis()
+    xAxis.setAutoRanging(true)
+    xAxis.forceZeroInRange = false
     xAxis.label = title
     val yAxis = NumberAxis()
+    yAxis.setAutoRanging(true)
     val chart = LineChart(xAxis, yAxis)
 
-    data foreach {
-      case (day, count) =>
-        val s = XYChart.Series[Number, Number](day, count)
+
+    series foreach {
+      case (name, buffer) =>
+        val s = XYChart.Series[Number, Number](name, buffer)
         chart.getData.add(s)
     }
-
-     // chart.lookup(".default-color0.chart-symbol")
     chart
   }
+
+  def addPointToLine(buffer: ObservableBuffer[Data[Number, Number]], point: (Long, Long)): ObservableBuffer[Data[Number, Number]] = {
+    val (x, y) = point
+    buffer.add(new Data[Number, Number](x,y))
+    if (buffer.size > 5)
+      buffer.remove(0)
+    buffer
+  }
+
 }

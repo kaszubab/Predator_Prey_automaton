@@ -1,12 +1,14 @@
 package UI
 
 import Logic.{Animal, Point, Simulation, SimulationParams}
+import UI.ScalaFXSimulation.stage
+import javafx.scene.chart.XYChart
 import scalafx.animation.AnimationTimer
 import scalafx.collections.ObservableBuffer
+import scalafx.geometry.Insets
 import scalafx.scene.canvas.Canvas
-import scalafx.scene.chart.PieChart.Data
-import scalafx.scene.chart.{LineChart, NumberAxis, XYChart}
-import scalafx.scene.layout.{BorderPane, Pane}
+import scalafx.scene.control.Button
+import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
 import scalafx.scene.paint.Color
 
 class CellAutomataVisualizer(params: SimulationParams) extends Pane{
@@ -19,50 +21,36 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
   val gc = canvas.getGraphicsContext2D
   val simulation = new Simulation(params)
   var day = 0
+  var running = false
+
+
+  visualizeState(simulation.resultLists())
 
   val animalData = Seq(("Herbivores",ObservableBuffer(Seq(
     (0, params.mapHeight * params.mapWidth * params.initialPreyPercentage /100)
   ) map  {
-    case(x,y) => XYChart.Data[Number, Number](x,y)
+    case(x,y) => new XYChart.Data[Number, Number](x,y)
   })),
     ("Carnivores",ObservableBuffer(Seq(
       (0, params.mapHeight * params.mapWidth * params.initialPredatorPercentage /100)
     ) map  {
-      case(x,y) => XYChart.Data[Number, Number](x,y)
+      case(x,y) => new XYChart.Data[Number, Number](x,y)
     }))
   )
 
-  val animalsChart = SimulationLineChart("Total number of animals", animalData)
+
+
+  val animalsChart = SimulationLineChart("Animal population", animalData)
 
   var last = 0L
   val timer = AnimationTimer( t => {
     if (last > 0) {
       if ((t - last)/ 1e9 > 2) {
         val lists = simulation.nextState()
-
-        gc.setFill(Color.White)
-        gc.fillRect(0,0, canvasWidth, canvasHeight);
-        lists._1 map {
-          (animal) => addSquare(animal.position, Color.Red)
-        }
-
-        lists._2 map {
-          (animal) => addSquare(animal.position, Color.Blue)
-        }
+        visualizeState(lists)
+        actualizeCharts(lists)
         day += 1
 
-        println("Ilości w dniu: " + day + " " + lists._1.size + "  " + lists._2.size)
-        /*
-        animalData foreach {
-          case ("herbivores", herbs) => herbs.add( new XYChart.Data[Number, Number](day, 2))
-          case ("carnivores", herbs) => herbs.add( new XYChart.Data[Number, Number](day, 2))
-          case _ => None
-        }
-
-        animalData foreach  {
-          (x) => println(x)
-        }
-        */
         last = t
       }
     }
@@ -71,7 +59,6 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
     }
   })
 
-  timer.start()
 
 
 
@@ -81,10 +68,74 @@ class CellAutomataVisualizer(params: SimulationParams) extends Pane{
      canvasWidth/params.mapWidth, canvasHeight/params.mapHeight)
  }
 
-  mainWindow.top = canvas
-  mainWindow.right = animalsChart
+  def visualizeState(lists:(List[Animal], List[Animal])) {
+    gc.setFill(Color.White)
+    gc.fillRect(0,0, canvasWidth, canvasHeight);
+    lists._1 foreach  {
+      (animal) => addSquare(animal.position, Color.Red)
+    }
+
+    lists._2 foreach  {
+      (animal) => addSquare(animal.position, Color.Blue)
+    }
+  }
+
+  def actualizeCharts(lists: (List[Animal], List[Animal])): Unit =
+  {
+    SimulationLineChart.addPointToLine(animalData.head._2, (day, lists._1.size))
+    SimulationLineChart.addPointToLine(animalData(1)._2, (day, lists._2.size))
+    SimulationLineChart
+  }
+
+
+
+  val stopButton = new Button(){
+    text = "Start simulation"
+    onMouseClicked = (_) => {
+      if (running) {
+        timer.stop()
+        running = false
+        text = "Start simulation"
+      } else {
+        timer.start()
+        running = true
+        text = "Stop simulation"
+      }
+
+    }
+
+  }
+
+
+  val saveChartToPng = new Button(){
+    text = "Save chart"
+  }
+
+  val rightWindow = new VBox() {
+    padding = Insets(5,5,5,5)
+    spacing = 10
+  }
+  rightWindow.children.addAll(
+    animalsChart,
+    stopButton
+  )
+
+  val centralPane = new HBox() {
+    padding = Insets(5,5,5,5)
+    spacing = 10
+  }
+  centralPane.children.addAll(
+    canvas,
+    rightWindow
+  )
+
+  mainWindow.top = centralPane
   children.add(mainWindow)
 
 
 }
+
+
+
+
 
